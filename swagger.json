@@ -5,9 +5,9 @@
     "description": "API documentation for the Project application",
     "version": "1.0.0"
   },
-  "host": "https://cse341-project2-tj.onrender.com",
+  "host": "cse341-project2-tj.onrender.com",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": ["https"],
   "consumes": ["application/json"],
   "produces": ["application/json"],
   "tags": [
