@@ -4,6 +4,11 @@ const express = require("express");
 const mongodb = require("./data/database");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
+const bodyParser = require("body-parser");
+const passport = require("passport");
+const GitHubStrategy = require("passport-github2").Strategy;
+const session = require("express-session");
+const cors = require("cors");
 require('dotenv').config();
 
 const app = express();
@@ -11,12 +16,55 @@ const port = process.env.PORT || 3000;
 
 
 app.use(express.json());
-app.use((req, res, next) => {
+
+
+app
+.use(bodyParser.json())
+.use(session({
+  secret: process.env.SESSION_SECRET || "your-secret-key-here", // Use environment variable
+  resave: false,
+  saveUninitialized: true,
+}))
+.use(passport.initialize())
+.use(passport.session())
+.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "origin, X-Requested-With, Content-Type, Accept, Z-key");
   next();
+})
+.use(cors({
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"], // Fixed typo
+  origin: "*"
+}));
+
+// GitHub OAuth Strategy
+passport.use(new GitHubStrategy({
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: process.env.GITHUB_CALLBACK_URL || "/github/callback"
+},
+function(accessToken, refreshToken, profile, done) {
+  return done(null, profile);
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user);
 });
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+
+app.get("/github/callback", 
+  passport.authenticate("github", { failureRedirect: "/api-docs" }),
+  (req, res) => {
+    req.session.user = req.user;
+    res.redirect("/");
+  }
+);
+
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
