@@ -21,9 +21,9 @@ app.use(express.json());
 app
 .use(bodyParser.json())
 .use(session({
-  secret: process.env.SESSION_SECRET || "your-secret-key-here", // Use environment variable
+  secret: process.env.SESSION_SECRET || "your-secret-key-here", 
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
 }))
 .use(passport.initialize())
 .use(passport.session())
@@ -34,15 +34,16 @@ app
   next();
 })
 .use(cors({
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"], // Fixed typo
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"], 
   origin: "*"
-}));
+}))
+.use("/", require("./routes/index.js"));
 
 // GitHub OAuth Strategy
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: process.env.GITHUB_CALLBACK_URL || "/github/callback"
+  callbackURL: process.env.GITHUB_CALLBACK_URL 
 },
 function(accessToken, refreshToken, profile, done) {
   return done(null, profile);
@@ -56,6 +57,8 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
+
+app.get("/", (req, res) => { res.send(req.session.user !== undefined ? `Logged in as ${req.session.user.username}` : "Not logged in"); });
 
 app.get("/github/callback", 
   passport.authenticate("github", { failureRedirect: "/api-docs" }),
