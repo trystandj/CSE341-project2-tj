@@ -39,26 +39,22 @@ router.get("/login", passport.authenticate("github", {
 }));
 
 
-router.get("/logout", (req, res, next) => {
-  console.log("Logout route hit");
-  req.logOut(err => {
-    if (err) {
-      console.error("Logout error:", err);
-      return next(err);
-    }
+router.get("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) return next(err);
 
-    req.session.destroy(err => {
-      if (err) {
-        console.error("Session destroy error:", err);
-        return next(err);
-      }
+    req.session.user = null;
 
-      console.log("Clearing connect.sid cookie");
-      res.clearCookie('connect.sid', { path: '/' });
-      res.redirect('/');
+    req.session.destroy(function (err) {
+      if (err) return next(err);
+
+      res.clearCookie("connect.sid");
+
+      res.redirect("/");
     });
   });
 });
+
 
 
 router.use("/api-docs", require("./swagger"));
