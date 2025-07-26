@@ -265,27 +265,26 @@
           }
         }
       }
-    },
-  
+    }
+  },
     "/login": {
-      "get": {
-        "tags": ["Home"],
-        "description": "Initiates GitHub OAuth login flow.",
-        "responses": {
-          "302": {
-            "description": "Redirects user to GitHub for authentication"
-          }
+    "get": {
+      "tags": ["Home"],
+      "description": "Initiates GitHub OAuth login flow.",
+      "responses": {
+        "302": {
+          "description": "Redirects user to GitHub for authentication"
         }
       }
-    },
-    "/logout": {
-      "get": {
-        "tags": ["Home"],
-        "description": "Logs out the current user and destroys the session.",
-        "responses": {
-          "302": {
-            "description": "Redirects user to home page after logout"
-          }
+    }
+  },
+  "/logout": {
+    "get": {
+      "tags": ["Home"],
+      "description": "Logs out the current user and destroys the session.",
+      "responses": {
+        "302": {
+          "description": "Redirects user to home page after logout"
         }
       }
     }
